@@ -283,10 +283,10 @@ def send_message():
             current_user['behavioral_notes'] = new_behavioral_notes
         
         # Emit socket event for real-time updates
-        socketio.emit('message_received', {
+        emit('message_received', {
             'message': response_text,
             'sender': 'bot'
-        })
+        }, broadcast=True)
     
     return redirect(url_for('chat'))
 
