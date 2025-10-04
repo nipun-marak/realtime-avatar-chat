@@ -1,0 +1,275 @@
+{% extends "base.html" %}
+
+{% block title %}Chat - Mindful Companion{% endblock %}
+
+{% block styles %}
+    #main-layout {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        height: 85vh;
+        gap: 30px;
+    }
+    
+    #avatar-wrapper {
+        flex-shrink: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    #secondary-avatar {
+        width: 320px;
+        height: 320px;
+        border-radius: 10%;
+        object-fit: cover;
+        border: 3px solid #6e8efb;
+        box-shadow: 0 4px 15px rgba(110, 142, 251, 0.3);
+        transition: all 0.1s ease-in-out; /* Faster transition for lip sync */
+        margin-top: 20px;
+    }
+    
+    #secondary-avatar:hover {
+        transform: scale(1.05);
+        box-shadow: 0 6px 20px rgba(110, 142, 251, 0.4);
+    }
+    
+    #chat-wrapper {
+        flex-shrink: 0;
+    }
+    
+    #chat-container {
+        width: 500px;
+        height: 80vh;
+        max-height: 650px;
+        border-radius: 10px;
+        display: flex;
+        flex-direction: column;
+        background-color: #f9f9f9;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        transition: all 0.3s ease-in-out;
+    }
+    
+    #chat-header {
+        position: relative;
+        padding: 15px;
+        background: linear-gradient(135deg, #6e8efb, #a777e3);
+        color: white;
+        font-weight: 500;
+        border-radius: 10px 10px 0 0;
+        text-align: center;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    #header-title {
+        flex-grow: 1;
+        text-align: center;
+        margin: 0 40px;
+    }
+    
+    .header-btn {
+        background: none;
+        border: 1px solid rgba(255,255,255,0.5);
+        color: white;
+        font-size: 18px;
+        cursor: pointer;
+        border-radius: 5px;
+        width: 32px;
+        height: 32px;
+        line-height: 30px;
+        padding: 0;
+        transition: background-color 0.2s;
+    }
+    
+    .header-btn:hover {
+        background-color: rgba(255,255,255,0.2);
+    }
+    
+    #chat-history {
+        flex-grow: 1;
+        overflow-y: auto;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    #input-area {
+        display: flex;
+        padding: 15px;
+        border-top: 1px solid #ccc;
+        align-items: center;
+    }
+    
+    #user-input {
+        flex-grow: 1;
+        border: 1px solid #ddd;
+        border-radius: 20px;
+        padding: 10px 15px;
+        font-size: 16px;
+        outline: none;
+    }
+    
+    #send-button {
+        margin-left: 10px;
+        padding: 10px 20px;
+        border: none;
+        background-color: #6e8efb;
+        color: white;
+        border-radius: 20px;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+    
+    #send-button:hover {
+        background-color: #5a7de8;
+    }
+    
+    #send-button:disabled {
+        background-color: #ccc;
+        cursor: not-allowed;
+    }
+    
+    #mic-btn {
+        font-size: 24px;
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: #555;
+        padding: 0 10px;
+        transition: color 0.2s;
+    }
+    
+    #mic-btn:hover:not(:disabled) {
+        color: #6e8efb;
+    }
+    
+    #mic-btn:disabled {
+        color: #ccc;
+        cursor: not-allowed;
+    }
+    
+    #mic-btn.recording {
+        color: #ff4136;
+        animation: pulse 1.5s infinite;
+    }
+    
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.2); }
+        100% { transform: scale(1); }
+    }
+    
+    #status-indicator {
+        padding: 5px 20px;
+        font-style: italic;
+        color: #888;
+        height: 25px;
+        font-size: 14px;
+    }
+    
+    .fullscreen-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background-color: rgba(0,0,0,0.8);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+    }
+    
+    .fullscreen-chat-layout {
+        display: flex;
+        width: 95vw;
+        height: 95vh;
+        align-items: center;
+        justify-content: center;
+        gap: 50px;
+    }
+    
+    .fullscreen-chat-layout #chat-wrapper {
+        flex-grow: 1;
+        height: 100%;
+    }
+    
+    .fullscreen-chat-layout #chat-container {
+        width: 80%;
+        height: 100%;
+        max-height: 95vh;
+    }
+    
+    .fullscreen-chat-layout #avatar-wrapper {
+        transform: scale(1.5);
+    }
+    
+    .fullscreen-chat-layout #secondary-avatar {
+        width: 150px;
+        height: 150px;
+    }
+{% endblock %}
+
+{% block content %}
+<div id="main-layout">
+    <img id="secondary-avatar" src="{{ url_for('static', filename='Avatar.png') }}" alt="AI Companion Avatar" />
+    
+    <div id="avatar-wrapper">
+        <div id="avatar-container" class="avatar-container {{ session.get('avatar_state', 'idle') }}">
+            <div class="avatar-head">
+                <div class="avatar-eye eye-left">
+                    <div class="pupil"></div>
+                </div>
+                <div class="avatar-eye eye-right">
+                    <div class="pupil"></div>
+                </div>
+            </div>
+            <div class="avatar-body"></div>
+            <div class="avatar-status-label">{{ session.get('avatar_state', 'idle').title() }}</div>
+        </div>
+    </div>
+    
+    <div id="chat-wrapper">
+        <div id="chat-container">
+            <div id="chat-header">
+                <button id="toggle-voice-btn" class="header-btn" title="Toggle Voice Output">🔊</button>
+                <span id="header-title">Mindful Companion ({{ current_user.username if current_user else 'User' }})</span>
+                <button id="fullscreen-btn" class="header-btn" title="Toggle Fullscreen">⛶</button>
+            </div>
+            
+            <div id="chat-history">
+                {% for message in messages %}
+                    <div class="message {{ message.sender }}-message">{{ message.text }}</div>
+                {% endfor %}
+            </div>
+            
+            <div id="status-indicator"></div>
+            
+            <form id="chat-form" method="POST" action="{{ url_for('send_message') }}">
+                <div id="input-area">
+                    <button id="mic-btn" type="button" title="Click to Speak">🎤</button>
+                    <input type="text" id="user-input" name="message" placeholder="Type or click the mic to speak..." required>
+                    <button id="send-button" type="submit">Send</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Pass session data to JavaScript
+    window.sessionData = {
+        voiceEnabled: {{ session.get('voice_enabled', true)|tojson }},
+        fullscreen: {{ session.get('fullscreen', false)|tojson }},
+        avatarState: {{ session.get('avatar_state', 'idle')|tojson }}
+    };
+</script>
+<script src="{{ url_for('static', filename='js/chat.js') }}"></script>
+{% endblock %}

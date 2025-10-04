@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mindful Companion</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        #main-layout {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: 85vh;
+            gap: 30px;
+        }
+        
+        #avatar-wrapper {
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        #secondary-avatar {
+            width: 320px;
+            height: 320px;
+            border-radius: 10%;
+            object-fit: cover;
+            border: 3px solid #6e8efb;
+            box-shadow: 0 4px 15px rgba(110, 142, 251, 0.3);
+            transition: all 0.3s ease-in-out;
+            margin-top: 20px;
+        }
+        
+        #secondary-avatar:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(110, 142, 251, 0.4);
+        }
+        
+        #chat-wrapper {
+            flex-shrink: 0;
+        }
+        
+        #chat-container {
+            width: 500px;
+            height: 80vh;
+            max-height: 650px;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            background-color: #f9f9f9;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            transition: all 0.3s ease-in-out;
+        }
+        
+        #chat-header {
+            position: relative;
+            padding: 15px;
+            background: linear-gradient(135deg, #6e8efb, #a777e3);
+            color: white;
+            font-weight: 500;
+            border-radius: 10px 10px 0 0;
+            text-align: center;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        #header-title {
+            flex-grow: 1;
+            text-align: center;
+            margin: 0 40px;
+        }
+        
+        .header-btn {
+            background: none;
+            border: 1px solid rgba(255,255,255,0.5);
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+            border-radius: 5px;
+            width: 32px;
+            height: 32px;
+            line-height: 30px;
+            padding: 0;
+            transition: background-color 0.2s;
+        }
+        
+        .header-btn:hover {
+            background-color: rgba(255,255,255,0.2);
+        }
+        
+        #chat-history {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .message {
+            max-width: 80%;
+            padding: 12px 18px;
+            border-radius: 20px;
+            line-height: 1.5;
+            word-wrap: break-word;
+            white-space: pre-wrap;
+        }
+        
+        .user-message {
+            align-self: flex-end;
+            background-color: #0b93f6;
+            color: white;
+        }
+        
+        .bot-message {
+            align-self: flex-start;
+            background-color: #e5e5ea;
+            color: black;
+        }
+        
+        #input-area {
+            display: flex;
+            padding: 15px;
+            border-top: 1px solid #ccc;
+            align-items: center;
+        }
+        
+        #user-input {
+            flex-grow: 1;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            padding: 10px 15px;
+            font-size: 16px;
+            outline: none;
+        }
+        
+        #send-button {
+            margin-left: 10px;
+            padding: 10px 20px;
+            border: none;
+            background-color: #6e8efb;
+            color: white;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        #send-button:hover {
+            background-color: #5a7de8;
+        }
+        
+        #send-button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        
+        #mic-btn {
+            font-size: 24px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #555;
+            padding: 0 10px;
+            transition: color 0.2s;
+        }
+        
+        #mic-btn:hover:not(:disabled) {
+            color: #6e8efb;
+        }
+        
+        #mic-btn:disabled {
+            color: #ccc;
+            cursor: not-allowed;
+        }
+        
+        #mic-btn.recording {
+            color: #ff4136;
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+        
+        #status-indicator {
+            padding: 5px 20px;
+            font-style: italic;
+            color: #888;
+            height: 25px;
+            font-size: 14px;
+        }
+        
+        #avatar-container {
+            position: relative;
+            width: 180px;
+            height: 220px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease-in-out;
+        }
+        
+        #avatar-head {
+            width: 128px;
+            height: 128px;
+            background: linear-gradient(to bottom, #d1d5db, #9ca3af);
+            border-radius: 16px;
+            position: relative;
+            border: 3px solid #6b7280;
+            transition: all 0.3s ease-in-out;
+        }
+        
+        #avatar-body {
+            width: 144px;
+            height: 80px;
+            background: linear-gradient(to bottom, #9ca3af, #6b7280);
+            border-radius: 16px 16px 10px 10px;
+            margin-top: -8px;
+            border: 3px solid #4b5563;
+        }
+        
+        .avatar-eye {
+            position: absolute;
+            top: 32px;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s ease-in-out;
+            background-color: #f3f4f6;
+        }
+        
+        .avatar-eye .pupil {
+            width: 8px;
+            height: 8px;
+            background-color: #111827;
+            border-radius: 50%;
+        }
+        
+        #eye-left {
+            left: 24px;
+        }
+        
+        #eye-right {
+            right: 24px;
+        }
+        
+        
+        #avatar-status-label {
+            margin-top: 15px;
+            padding: 4px 12px;
+            border-radius: 99px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease-in-out;
+        }
+        
+        #avatar-container.idle .avatar-eye {
+            animation: blink 4s infinite ease-in-out 1s;
+        }
+        
+        
+        #avatar-container.idle #avatar-status-label {
+            background-color: #e5e7eb;
+            color: #4b5563;
+        }
+        
+        #avatar-container.listening #avatar-head {
+            border-color: #60a5fa;
+        }
+        
+        #avatar-container.listening .avatar-eye {
+            background-color: #93c5fd;
+            animation: pulse-blue 1.5s infinite;
+        }
+        
+        #avatar-container.listening #avatar-status-label {
+            background-color: #dbeafe;
+            color: #1e40af;
+        }
+        
+        #avatar-container.thinking #avatar-head {
+            border-color: #facc15;
+        }
+        
+        #avatar-container.thinking .avatar-eye {
+            background-color: #fde047;
+            transform: scaleY(0.5);
+        }
+        
+        
+        #avatar-container.thinking #avatar-status-label {
+            background-color: #fef9c3;
+            color: #854d0e;
+        }
+        
+        #avatar-container.speaking #avatar-head {
+            border-color: #4ade80;
+        }
+        
+        #avatar-container.speaking .avatar-eye {
+            background-color: #86efac;
+        }
+        
+        #avatar-container.speaking #avatar-status-label {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+        
+        @keyframes blink {
+            0%, 95%, 100% { transform: scaleY(1); }
+            97% { transform: scaleY(0.1); }
+        }
+        
+        @keyframes pulse-blue {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(96, 165, 250, 0.7); }
+            50% { box-shadow: 0 0 10px 4px rgba(96, 165, 250, 0); }
+        }
+        
+        .fullscreen-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: rgba(0,0,0,0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+        
+        .fullscreen-chat-layout {
+            display: flex;
+            width: 95vw;
+            height: 95vh;
+            align-items: center;
+            justify-content: center;
+            gap: 50px;
+        }
+        
+        .fullscreen-chat-layout #chat-wrapper {
+            flex-grow: 1;
+            height: 100%;
+        }
+        
+        .fullscreen-chat-layout #chat-container {
+            width: 80%;
+            height: 100%;
+            max-height: 95vh;
+        }
+        
+        .fullscreen-chat-layout #avatar-wrapper {
+            transform: scale(1.5);
+        }
+        
+        .fullscreen-chat-layout #secondary-avatar {
+            width: 150px;
+            height: 150px;
+        }
+        
+        #login-container {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+        }
+        
+        #login-container h1 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 28px;
+        }
+        
+        #login-container p {
+            color: #666;
+            margin-bottom: 30px;
+            line-height: 1.5;
+        }
+        
+        #username-input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 16px;
+            margin-bottom: 20px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        
+        #username-input:focus {
+            border-color: #6e8efb;
+        }
+        
+        #start-button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #6e8efb, #a777e3);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        #start-button:hover {
+            transform: translateY(-2px);
+        }
+        
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Screen -->
+    <div id="login-container">
+        <h1>🤖 Mindful Companion</h1>
+        <p>Your AI-powered mentor for self-awareness and personal growth. Enter your name to get started!</p>
+        <input type="text" id="username-input" placeholder="What's your name?" maxlength="50">
+        <button id="start-button">Start Conversation</button>
+    </div>
+
+    <!-- Main Chat Interface -->
+    <div id="main-layout" class="hidden">
+        <img id="secondary-avatar" src="/static/Avatar.png" alt="AI Companion Avatar" />
+        <div id="avatar-wrapper">
+            <div id="avatar-container" class="idle">
+                <div id="avatar-head">
+                    <div id="eye-left" class="avatar-eye">
+                        <div class="pupil"></div>
+                    </div>
+                    <div id="eye-right" class="avatar-eye">
+                        <div class="pupil"></div>
+                    </div>
+                </div>
+                <div id="avatar-body"></div>
+                <div id="avatar-status-label">Idle</div>
+            </div>
+        </div>
+        
+        <div id="chat-wrapper">
+            <div id="chat-container">
+                <div id="chat-header">
+                    <button id="toggle-voice-btn" class="header-btn" title="Toggle Voice Output">🔊</button>
+                    <span id="header-title">Mindful Companion</span>
+                    <button id="fullscreen-btn" class="header-btn" title="Toggle Fullscreen">⛶</button>
+                </div>
+                <div id="chat-history"></div>
+                <div id="status-indicator"></div>
+                <div id="input-area">
+                    <button id="mic-btn" title="Click to Speak">🎤</button>
+                    <input type="text" id="user-input" placeholder="Type or click the mic to speak...">
+                    <button id="send-button">Send</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let isVoiceEnabled = true;
+        let isFullscreen = false;
+        let isRecording = false;
+        let currentAudio = null;
+        let recognition = null;
+
+        // DOM elements
+        const loginContainer = document.getElementById('login-container');
+        const mainLayout = document.getElementById('main-layout');
+        const chatHistory = document.getElementById('chat-history');
+        const userInput = document.getElementById('user-input');
+        const sendButton = document.getElementById('send-button');
+        const micBtn = document.getElementById('mic-btn');
+        const toggleVoiceBtn = document.getElementById('toggle-voice-btn');
+        const statusIndicator = document.getElementById('status-indicator');
+        const fullscreenBtn = document.getElementById('fullscreen-btn');
+        const avatarContainer = document.getElementById('avatar-container');
+        const statusLabel = document.getElementById('avatar-status-label');
+        const usernameInput = document.getElementById('username-input');
+        const startButton = document.getElementById('start-button');
+
+        // Avatar state management
+        async function setAvatarState(state) {
+            try {
+                const response = await fetch('/api/avatar_state', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ state: state })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    avatarContainer.className = data.state;
+                    statusLabel.textContent = data.status_label;
+                } else {
+                    console.error('Error setting avatar state:', data.error);
+                    // Fallback to local state management
+                    avatarContainer.className = state;
+                    statusLabel.textContent = state.charAt(0).toUpperCase() + state.slice(1);
+                }
+            } catch (error) {
+                console.error('Error setting avatar state:', error);
+                // Fallback to local state management
+                avatarContainer.className = state;
+                statusLabel.textContent = state.charAt(0).toUpperCase() + state.slice(1);
+            }
+        }
+
+        // Message handling
+        async function appendMessage(text, sender) {
+            // Log message to server if needed
+            try {
+                await fetch('/api/message/append', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ message: text, sender: sender })
+                });
+            } catch (error) {
+                console.error('Error logging message:', error);
+            }
+            
+            // Display message in UI
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('message', sender + '-message');
+            messageDiv.textContent = text;
+            chatHistory.appendChild(messageDiv);
+            chatHistory.scrollTop = chatHistory.scrollHeight;
+        }
+
+        // Audio handling
+        function stopCurrentAudio() {
+            if (currentAudio) {
+                currentAudio.pause();
+                currentAudio.currentTime = 0;
+                currentAudio = null;
+            }
+        }
+
+        async function playAudio(base64Data) {
+            stopCurrentAudio();
+            if (!isVoiceEnabled || !base64Data) {
+                await setAvatarState('idle');
+                return;
+            }
+            
+            await setAvatarState('speaking');
+            const audioData = "data:audio/mpeg;base64," + base64Data;
+            currentAudio = new Audio(audioData);
+            currentAudio.play().catch(e => {
+                console.error("Audio play failed:", e);
+                setAvatarState('idle');
+            });
+            currentAudio.onended = async () => {
+                await setAvatarState('idle');
+            };
+        }
+
+        // API calls
+        async function startSession(username) {
+            try {
+                const response = await fetch('/api/start_session', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ username: username })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    // Show main interface
+                    loginContainer.classList.add('hidden');
+                    mainLayout.classList.remove('hidden');
+                    
+                    // Update header with username
+                    document.getElementById('header-title').textContent = `Mindful Companion (${username})`;
+                    
+                    // Show greeting
+                    await appendMessage(data.message, 'bot');
+                    await playAudio(data.audio);
+                    await setAvatarState('idle');
+                    userInput.focus();
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            } catch (error) {
+                console.error('Error starting session:', error);
+                alert('Failed to start session. Please try again.');
+            }
+        }
+
+        async function sendMessage() {
+            const message = userInput.value.trim();
+            if (!message) return;
+            
+            await appendMessage(message, 'user');
+            userInput.value = '';
+            await setAvatarState('thinking');
+            statusIndicator.textContent = "Companion is thinking...";
+            sendButton.disabled = true;
+            micBtn.disabled = true;
+            
+            try {
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ message: message })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    await appendMessage(data.message, 'bot');
+                    await playAudio(data.audio);
+                } else {
+                    await appendMessage('Sorry, I encountered an error. Please try again.', 'bot');
+                }
+            } catch (error) {
+                console.error('Error sending message:', error);
+                await appendMessage('Sorry, I encountered an error. Please try again.', 'bot');
+            } finally {
+                statusIndicator.textContent = '';
+                sendButton.disabled = false;
+                micBtn.disabled = false;
+                userInput.focus();
+            }
+        }
+
+        // Speech recognition setup
+        function initializeSpeechRecognition() {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (SpeechRecognition) {
+                try {
+                    recognition = new SpeechRecognition();
+                    recognition.continuous = false;
+                    recognition.interimResults = false;
+                    recognition.lang = 'en-US';
+
+                    micBtn.addEventListener('click', async () => {
+                        if (isRecording) {
+                            recognition.stop();
+                            isRecording = false;
+                            micBtn.classList.remove('recording');
+                            await setAvatarState('idle');
+                            statusIndicator.textContent = '';
+                            
+                            // Notify server that recording stopped
+                            try {
+                                await fetch('/api/speech/stop', { method: 'POST' });
+                            } catch (error) {
+                                console.error('Error stopping speech recognition:', error);
+                            }
+                            return;
+                        }
+
+                        stopCurrentAudio();
+                        try {
+                            // Notify server that recording started
+                            await fetch('/api/speech/start', { method: 'POST' });
+                            
+                            recognition.start();
+                            isRecording = true;
+                            micBtn.classList.add('recording');
+                        } catch(e) {
+                            console.error("Recognition start error:", e);
+                            statusIndicator.textContent = "Please wait, microphone is busy...";
+                            setTimeout(() => { statusIndicator.textContent = ''; }, 2000);
+                        }
+                    });
+
+                    recognition.onstart = async () => {
+                        isRecording = true;
+                        micBtn.classList.add('recording');
+                        await setAvatarState('listening');
+                        statusIndicator.textContent = "Listening... (click mic to stop)";
+                    };
+
+                    recognition.onresult = async (event) => {
+                        const transcript = event.results[0][0].transcript;
+                        userInput.value = transcript;
+                        
+                        // Process speech transcript through Flask endpoint
+                        try {
+                            const response = await fetch('/api/speech/transcript', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify({ transcript: transcript })
+                            });
+                            
+                            const data = await response.json();
+                            
+                            if (response.ok) {
+                                await appendMessage(transcript, 'user');
+                                await appendMessage(data.response, 'bot');
+                                await playAudio(data.audio);
+                            } else {
+                                await appendMessage('Sorry, I encountered an error processing your speech. Please try again.', 'bot');
+                            }
+                        } catch (error) {
+                            console.error('Error processing speech transcript:', error);
+                            await appendMessage('Sorry, I encountered an error processing your speech. Please try again.', 'bot');
+                        }
+                    };
+
+                    recognition.onerror = (event) => {
+                        isRecording = false;
+                        micBtn.classList.remove('recording');
+                        console.error("Speech recognition error:", event.error);
+
+                        let errorMessage = "";
+                        switch(event.error) {
+                            case 'not-allowed':
+                            case 'permission-denied':
+                                errorMessage = "⚠️ Microphone access denied. Please allow microphone access in your browser settings.";
+                                break;
+                            case 'no-speech':
+                                errorMessage = "No speech detected. Please try again.";
+                                break;
+                            case 'audio-capture':
+                                errorMessage = "No microphone found. Please check your device.";
+                                break;
+                            case 'network':
+                                errorMessage = "Network error. Please check your connection.";
+                                break;
+                            case 'aborted':
+                                break;
+                            default:
+                                errorMessage = `Microphone error: ${event.error}`;
+                        }
+
+                        if (errorMessage) {
+                            setAvatarState('idle');
+                            statusIndicator.textContent = errorMessage;
+                            setTimeout(() => { statusIndicator.textContent = ''; }, 5000);
+                        }
+                    };
+
+                    recognition.onend = () => {
+                        isRecording = false;
+                        micBtn.classList.remove('recording');
+                        if (avatarContainer.className === 'listening') {
+                            setAvatarState('idle');
+                            if (statusIndicator.textContent === "Listening... (click mic to stop)") {
+                                statusIndicator.textContent = '';
+                            }
+                        }
+                    };
+
+                } catch(e) {
+                    console.error("Speech recognition initialization error:", e);
+                    micBtn.disabled = true;
+                    micBtn.style.color = '#ccc';
+                    micBtn.title = 'Voice recognition initialization failed.';
+                }
+            } else {
+                micBtn.disabled = true;
+                micBtn.style.color = '#ccc';
+                micBtn.title = 'Voice recognition not supported. Please use Chrome or Edge.';
+            }
+        }
+
+        // Fullscreen functionality
+        async function toggleFullscreen() {
+            isFullscreen = !isFullscreen;
+            
+            try {
+                const response = await fetch('/api/fullscreen/toggle', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ fullscreen: isFullscreen })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    if (isFullscreen) {
+                        const overlay = document.createElement('div');
+                        overlay.id = 'fullscreen-overlay';
+                        overlay.classList.add('fullscreen-overlay');
+                        mainLayout.classList.add('fullscreen-chat-layout');
+                        overlay.appendChild(mainLayout);
+                        document.body.appendChild(overlay);
+                    } else {
+                        const overlay = document.getElementById('fullscreen-overlay');
+                        const originalWrapper = document.body;
+                        originalWrapper.appendChild(mainLayout);
+                        if (overlay && overlay.parentNode) {
+                            document.body.removeChild(overlay);
+                        }
+                        mainLayout.classList.remove('fullscreen-chat-layout');
+                    }
+                } else {
+                    console.error('Error toggling fullscreen:', data.error);
+                    // Fallback to local toggle
+                    if (isFullscreen) {
+                        const overlay = document.createElement('div');
+                        overlay.id = 'fullscreen-overlay';
+                        overlay.classList.add('fullscreen-overlay');
+                        mainLayout.classList.add('fullscreen-chat-layout');
+                        overlay.appendChild(mainLayout);
+                        document.body.appendChild(overlay);
+                    } else {
+                        const overlay = document.getElementById('fullscreen-overlay');
+                        const originalWrapper = document.body;
+                        originalWrapper.appendChild(mainLayout);
+                        if (overlay && overlay.parentNode) {
+                            document.body.removeChild(overlay);
+                        }
+                        mainLayout.classList.remove('fullscreen-chat-layout');
+                    }
+                }
+            } catch (error) {
+                console.error('Error toggling fullscreen:', error);
+                // Fallback to local toggle
+                if (isFullscreen) {
+                    const overlay = document.createElement('div');
+                    overlay.id = 'fullscreen-overlay';
+                    overlay.classList.add('fullscreen-overlay');
+                    mainLayout.classList.add('fullscreen-chat-layout');
+                    overlay.appendChild(mainLayout);
+                    document.body.appendChild(overlay);
+                } else {
+                    const overlay = document.getElementById('fullscreen-overlay');
+                    const originalWrapper = document.body;
+                    originalWrapper.appendChild(mainLayout);
+                    if (overlay && overlay.parentNode) {
+                        document.body.removeChild(overlay);
+                    }
+                    mainLayout.classList.remove('fullscreen-chat-layout');
+                }
+            }
+            
+            userInput.focus();
+        }
+
+        // Event listeners
+        startButton.addEventListener('click', () => {
+            const username = usernameInput.value.trim();
+            if (username) {
+                startSession(username);
+            } else {
+                alert('Please enter your name to continue.');
+            }
+        });
+
+        usernameInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                startButton.click();
+            }
+        });
+
+        sendButton.addEventListener('click', sendMessage);
+        userInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        toggleVoiceBtn.addEventListener('click', async () => {
+            isVoiceEnabled = !isVoiceEnabled;
+            
+            try {
+                const response = await fetch('/api/toggle_voice', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ enabled: isVoiceEnabled })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    toggleVoiceBtn.textContent = data.icon;
+                    if (!isVoiceEnabled) {
+                        stopCurrentAudio();
+                        await setAvatarState('idle');
+                    }
+                } else {
+                    console.error('Error toggling voice:', data.error);
+                    // Fallback to local toggle
+                    toggleVoiceBtn.textContent = isVoiceEnabled ? '🔊' : '🔇';
+                    if (!isVoiceEnabled) {
+                        stopCurrentAudio();
+                        setAvatarState('idle');
+                    }
+                }
+            } catch (error) {
+                console.error('Error toggling voice:', error);
+                // Fallback to local toggle
+                toggleVoiceBtn.textContent = isVoiceEnabled ? '🔊' : '🔇';
+                if (!isVoiceEnabled) {
+                    stopCurrentAudio();
+                    setAvatarState('idle');
+                }
+            }
+        });
+
+        fullscreenBtn.addEventListener('click', toggleFullscreen);
+
+        // Initialize session status
+        async function initializeSession() {
+            try {
+                const response = await fetch('/api/session/status');
+                const data = await response.json();
+                
+                if (response.ok && data.active) {
+                    // Session is active, show main interface
+                    loginContainer.classList.add('hidden');
+                    mainLayout.classList.remove('hidden');
+                    
+                    // Update header with username
+                    document.getElementById('header-title').textContent = `Mindful Companion (${data.user.username})`;
+                    
+                    // Set avatar state
+                    await setAvatarState(data.avatar_state);
+                    
+                    // Set voice toggle state
+                    isVoiceEnabled = data.voice_enabled;
+                    toggleVoiceBtn.textContent = isVoiceEnabled ? '🔊' : '🔇';
+                    
+                    // Set fullscreen state
+                    isFullscreen = data.fullscreen;
+                    
+                    userInput.focus();
+                } else {
+                    // No active session, show login
+                    setAvatarState('idle');
+                    usernameInput.focus();
+                }
+            } catch (error) {
+                console.error('Error initializing session:', error);
+                // Fallback to login screen
+                setAvatarState('idle');
+                usernameInput.focus();
+            }
+        }
+
+        // Initialize
+        initializeSpeechRecognition();
+        initializeSession();
+    </script>
+</body>
+</html>

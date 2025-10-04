@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Mindful Companion{% endblock %}</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        /* Avatar Styles */
+        .avatar-container {
+            position: relative;
+            width: 180px;
+            height: 220px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease-in-out;
+        }
+        
+        .avatar-head {
+            width: 128px;
+            height: 128px;
+            background: linear-gradient(to bottom, #d1d5db, #9ca3af);
+            border-radius: 16px;
+            position: relative;
+            border: 3px solid #6b7280;
+            transition: all 0.3s ease-in-out;
+        }
+        
+        .avatar-body {
+            width: 144px;
+            height: 80px;
+            background: linear-gradient(to bottom, #9ca3af, #6b7280);
+            border-radius: 16px 16px 10px 10px;
+            margin-top: -8px;
+            border: 3px solid #4b5563;
+        }
+        
+        .avatar-eye {
+            position: absolute;
+            top: 32px;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s ease-in-out;
+            background-color: #f3f4f6;
+        }
+        
+        .avatar-eye .pupil {
+            width: 8px;
+            height: 8px;
+            background-color: #111827;
+            border-radius: 50%;
+        }
+        
+        .eye-left {
+            left: 24px;
+        }
+        
+        .eye-right {
+            right: 24px;
+        }
+        
+        .avatar-status-label {
+            margin-top: 15px;
+            padding: 4px 12px;
+            border-radius: 99px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease-in-out;
+        }
+        
+        /* Avatar States */
+        .avatar-container.idle .avatar-eye {
+            animation: blink 4s infinite ease-in-out 1s;
+        }
+        
+        .avatar-container.idle .avatar-status-label {
+            background-color: #e5e7eb;
+            color: #4b5563;
+        }
+        
+        .avatar-container.listening .avatar-head {
+            border-color: #60a5fa;
+        }
+        
+        .avatar-container.listening .avatar-eye {
+            background-color: #93c5fd;
+            animation: pulse-blue 1.5s infinite;
+        }
+        
+        .avatar-container.listening .avatar-status-label {
+            background-color: #dbeafe;
+            color: #1e40af;
+        }
+        
+        .avatar-container.thinking .avatar-head {
+            border-color: #facc15;
+        }
+        
+        .avatar-container.thinking .avatar-eye {
+            background-color: #fde047;
+            transform: scaleY(0.5);
+        }
+        
+        .avatar-container.thinking .avatar-status-label {
+            background-color: #fef9c3;
+            color: #854d0e;
+        }
+        
+        .avatar-container.speaking .avatar-head {
+            border-color: #4ade80;
+        }
+        
+        .avatar-container.speaking .avatar-eye {
+            background-color: #86efac;
+        }
+        
+        .avatar-container.speaking .avatar-status-label {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+        
+        @keyframes blink {
+            0%, 95%, 100% { transform: scaleY(1); }
+            97% { transform: scaleY(0.1); }
+        }
+        
+        @keyframes pulse-blue {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(96, 165, 250, 0.7); }
+            50% { box-shadow: 0 0 10px 4px rgba(96, 165, 250, 0); }
+        }
+        
+        /* Message Styles */
+        .message {
+            max-width: 80%;
+            padding: 12px 18px;
+            border-radius: 20px;
+            line-height: 1.5;
+            word-wrap: break-word;
+            white-space: pre-wrap;
+            margin: 10px 0;
+        }
+        
+        .user-message {
+            background-color: #0b93f6;
+            color: white;
+            margin-left: auto;
+            text-align: right;
+        }
+        
+        .bot-message {
+            background-color: #e5e5ea;
+            color: black;
+            margin-right: auto;
+            text-align: left;
+        }
+        
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        
+        .form-control:focus {
+            border-color: #6e8efb;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #6e8efb, #a777e3);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background-color: #6b7280;
+            color: white;
+        }
+        
+        .btn-small {
+            padding: 8px 16px;
+            font-size: 14px;
+        }
+        
+        /* Flash Messages */
+        .flash-messages {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+        
+        .flash-message {
+            padding: 12px 20px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            color: white;
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        .flash-success {
+            background-color: #10b981;
+        }
+        
+        .flash-error {
+            background-color: #ef4444;
+        }
+        
+        .flash-warning {
+            background-color: #f59e0b;
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        {% block styles %}{% endblock %}
+    </style>
+    {% block head %}{% endblock %}
+</head>
+<body>
+    <div class="container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for category, message in messages %}
+                        <div class="flash-message flash-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+        
+        {% block content %}{% endblock %}
+    </div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.js"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>
