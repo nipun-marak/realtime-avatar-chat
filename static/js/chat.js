@@ -285,7 +285,7 @@ async function handleFormSubmit(e) {
                 estimated_duration: data.estimated_duration
             };
             await playAudio(audioData);
-            socket.emit('message_sent', { message: data.message, sender: 'bot' });
+            // Removed duplicate socket emission that was causing double messages
         } else {
             await appendMessage('Sorry, I encountered an error. Please try again.', 'bot');
         }
