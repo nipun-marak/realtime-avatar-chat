@@ -32,20 +32,26 @@ class VisemeMapper:
         # Labiodental (lip to teeth)
         2: {"name": "Labiodental_fv", "phonemes": ["f", "v"]},
         
-        # Linguolabial
-        3: {"name": "Linguolabial", "phonemes": ["th"]},
+        # Dental (tongue between teeth)
+        3: {"name": "Dental_th", "phonemes": ["th"]},
         
         # Alveolar (tongue to roof)
-        4: {"name": "Alveolar_tdn", "phonemes": ["t", "d", "n", "s", "z", "l", "r"]},
+        4: {"name": "Alveolar_tdn", "phonemes": ["t", "d", "n", "s", "z", "l"]},
         
         # Palatal
-        5: {"name": "Palatal", "phonemes": ["sh", "zh", "ch", "jh", "y"]},
+        5: {"name": "Palatal", "phonemes": ["y"]},
         
-        # Velar
-        6: {"name": "Velar", "phonemes": ["k", "g", "ng"]},
+        # Velar (back of tongue to soft palate)
+        6: {"name": "Velar_kgng", "phonemes": ["k", "g", "ng"]},
         
-        # Glottal
-        7: {"name": "Glottal", "phonemes": ["h", "hh"]},
+        # Palato-alveolar (complex tongue position)
+        7: {"name": "Palato_alveolar_chj", "phonemes": ["ch", "jh"]},
+        
+        # Palato-alveolar fricative (rounded lips + tongue position)
+        8: {"name": "Palato_alveolar_fricative_shzh", "phonemes": ["sh", "zh"]},
+        
+        # Approximant (minimal constriction)
+        9: {"name": "Approximant_yr", "phonemes": ["y", "r"]},
         
         # Open vowel (mouth open wide)
         10: {"name": "Open_vowel_a", "phonemes": ["a", "aa", "ae", "ah"]},
@@ -60,7 +66,19 @@ class VisemeMapper:
         13: {"name": "Close-mid_o", "phonemes": ["o", "ow", "oy"]},
         
         # Close-back vowel (mouth almost closed, tongue back)
-        14: {"name": "Close-back_u", "phonemes": ["u", "uh", "uw", "w"]},
+        14: {"name": "Close-back_u", "phonemes": ["u", "uh", "uw"]},
+        
+        # Labial-velar (rounded lips + back tongue)
+        15: {"name": "Labial_velar_w", "phonemes": ["w"]},
+        
+        # Mid-front vowel (medium mouth opening)
+        16: {"name": "Mid_front_vowel_eehay", "phonemes": ["e", "eh", "ay"]},
+        
+        # Mid-back vowel (rounded lips + medium opening)
+        17: {"name": "Mid_back_vowel_oohoi", "phonemes": ["o", "oh", "oi"]},
+        
+        # Schwa (neutral vowel position)
+        18: {"name": "Schwa_eruh", "phonemes": ["er", "uh", "schwa"]},
     }
     
     # Duration estimates for different phoneme types (in seconds)
@@ -76,10 +94,23 @@ class VisemeMapper:
         self.viseme_images = {
             0: "/static/viseme_test_00_Silence.jpg",
             1: "/static/viseme_test_01_Bilabial_pbm.jpg",
+            2: "/static/viseme_test_02_Labiodental_fv.jpg",
+            3: "/static/viseme_test_03_Dental_th.jpg",
             4: "/static/viseme_test_04_Alveolar_tdn.jpg",
+            5: "/static/viseme_test_05_Palatal.jpg",
+            6: "/static/viseme_test_06_Velar_kgng.jpg",
+            7: "/static/viseme_test_07_Palato_alveolar_chj.jpg",
+            8: "/static/viseme_test_08_Palato_alveolar_fricative_shzh.jpg",
+            9: "/static/viseme_test_09_Approximant_yr.jpg",
             10: "/static/viseme_test_10_Open_vowel_a.jpg",
-            14: "/static/viseme_test_14_Close-back_u.jpg",
+            11: "/static/viseme_test_11_Mid_vowel_e.jpg",
             12: "/static/viseme_test_12_Close-front_i.jpg",
+            13: "/static/viseme_test_13_Close-mid_o.jpg",
+            14: "/static/viseme_test_14_Close-back_u.jpg",
+            15: "/static/viseme_test_15_Labial_velar_w.jpg",
+            16: "/static/viseme_test_16_Mid_front_vowel_eehay.jpg",
+            17: "/static/viseme_test_17_Mid_back_vowel_oohoi.jpg",
+            18: "/static/viseme_test_18_Schwa_eruh.jpg",
         }
         
         # Create reverse mapping for faster lookup
