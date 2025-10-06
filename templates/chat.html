@@ -18,6 +18,10 @@
         flex-direction: column;
         align-items: center;
         justify-content: center;
+        --face-color: #ffdeb4;
+        --hair-color: #3d2314;
+        --eye-color: #588157;
+        --shirt-color: #6e8efb;
     }
     
     #secondary-avatar {
@@ -219,21 +223,6 @@
 <div id="main-layout">
     <img id="secondary-avatar" src="{{ url_for('static', filename='Avatar.png') }}" alt="AI Companion Avatar" />
     
-    <div id="avatar-wrapper">
-        <div id="avatar-container" class="avatar-container {{ session.get('avatar_state', 'idle') }}">
-            <div class="avatar-head">
-                <div class="avatar-eye eye-left">
-                    <div class="pupil"></div>
-                </div>
-                <div class="avatar-eye eye-right">
-                    <div class="pupil"></div>
-                </div>
-            </div>
-            <div class="avatar-body"></div>
-            <div class="avatar-status-label">{{ session.get('avatar_state', 'idle').title() }}</div>
-        </div>
-    </div>
-    
     <div id="chat-wrapper">
         <div id="chat-container">
             <div id="chat-header">
@@ -258,6 +247,28 @@
                 </div>
             </form>
         </div>
+    </div>
+    
+    <div id="avatar-wrapper">
+        <div id="avatar-container" class="avatar-container {{ session.get('avatar_state', 'idle') }}">
+            <div class="avatar-body"></div>
+            <div class="avatar-neck"></div>
+            <div class="avatar-head">
+                <div class="avatar-hair"></div>
+                <div id="eye-left" class="avatar-eye">
+                    <div class="pupil"></div>
+                </div>
+                <div id="eye-right" class="avatar-eye">
+                    <div class="pupil"></div>
+                </div>
+                <div id="avatar-mouth" class="mouth-closed">
+                    <div class="lip top"></div>
+                    <div class="inner-mouth"></div>
+                    <div class="lip bottom"></div>
+                </div>
+            </div>
+        </div>
+        <div id="avatar-status-label">{{ session.get('avatar_state', 'idle').title() }}</div>
     </div>
 </div>
 {% endblock %}

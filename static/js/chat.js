@@ -72,7 +72,8 @@ async function setAvatarState(state) {
 
 function updateAvatarState(state, statusLabel) {
     const avatarContainer = document.getElementById('avatar-container');
-    const statusElement = document.querySelector('.avatar-status-label');
+    const statusElement = document.getElementById('avatar-status-label');
+    const avatarMouth = document.getElementById('avatar-mouth');
     
     if (avatarContainer) {
         avatarContainer.className = `avatar-container ${state}`;
@@ -80,6 +81,17 @@ function updateAvatarState(state, statusLabel) {
     
     if (statusElement) {
         statusElement.textContent = statusLabel;
+    }
+    
+    // Handle mouth animation based on state
+    if (avatarMouth) {
+        if (state === 'speaking') {
+            // Keep mouth in neutral position when speaking (viseme sync will handle movement)
+            avatarMouth.className = 'mouth-neutral';
+        } else {
+            // Close mouth when not speaking
+            avatarMouth.className = 'mouth-closed';
+        }
     }
 }
 
@@ -168,8 +180,59 @@ function getCurrentVisemeFrame(currentTime) {
 
 function updateAvatarViseme(frame) {
     const avatarImg = document.getElementById('secondary-avatar');
+    const avatarMouth = document.getElementById('avatar-mouth');
+    
     if (avatarImg && frame) {
         avatarImg.src = frame.image_path;
+    }
+    
+    // Update mouth shape based on viseme
+    if (avatarMouth && frame) {
+        updateMouthShape(frame.viseme_id, frame.viseme_name);
+    }
+}
+
+function updateMouthShape(visemeId, visemeName) {
+    const avatarMouth = document.getElementById('avatar-mouth');
+    
+    if (!avatarMouth) return;
+    
+    // Apply viseme-specific mouth shapes
+    switch(visemeId) {
+        case 0: // Silence
+            avatarMouth.className = 'mouth-closed';
+            break;
+        case 1: // Bilabial (p, b, m) - lips together
+            avatarMouth.className = 'mouth-closed';
+            break;
+        case 2: // Labiodental (f, v) - lip to teeth
+            avatarMouth.className = 'mouth-narrow';
+            break;
+        case 3: // Dental (th) - tongue between teeth
+            avatarMouth.className = 'mouth-narrow';
+            break;
+        case 4: // Alveolar (t, d, n, s, z, l)
+            avatarMouth.className = 'mouth-narrow';
+            break;
+        case 10: // Open vowel (a, aa, ae, ah) - mouth wide open
+            avatarMouth.className = 'mouth-wide-e';
+            break;
+        case 11: // Mid vowel (e, eh, er)
+            avatarMouth.className = 'mouth-neutral';
+            break;
+        case 12: // Close-front vowel (i, ih, iy) - mouth almost closed
+            avatarMouth.className = 'mouth-closed';
+            break;
+        case 13: // Close-mid vowel (o, ow, oy)
+            avatarMouth.className = 'mouth-open-o';
+            break;
+        case 14: // Close-back vowel (u, uh, uw) - rounded lips
+            avatarMouth.className = 'mouth-open-o';
+            break;
+        default:
+            // Default neutral position
+            avatarMouth.className = 'mouth-neutral';
+            break;
     }
 }
 
@@ -277,6 +340,9 @@ async function handleFormSubmit(e) {
         
         if (response.ok) {
             await appendMessage(data.message, 'bot');
+            
+            // Add emotional expression based on bot's response
+            addEmotionalExpression(data.message);
             
             // Pass complete audio data including viseme frames
             const audioData = {
@@ -515,4 +581,47 @@ async function handleFullscreenToggle() {
 function initializeAvatar() {
     const avatarState = window.sessionData?.avatarState || 'idle';
     setAvatarState(avatarState);
+    
+    // Initialize mouth to closed state
+    const avatarMouth = document.getElementById('avatar-mouth');
+    if (avatarMouth) {
+        avatarMouth.className = 'mouth-closed';
+    }
+}
+
+// Add emotional expressions based on message content
+function addEmotionalExpression(message) {
+    const avatarMouth = document.getElementById('avatar-mouth');
+    const avatarHead = document.querySelector('.avatar-head');
+    
+    if (!avatarMouth || !avatarHead) return;
+    
+    // Simple emotion detection based on keywords
+    const positiveWords = ['happy', 'good', 'great', 'excellent', 'wonderful', 'amazing', 'love', 'like', 'thanks', 'thank you', 'welcome'];
+    const negativeWords = ['sad', 'bad', 'terrible', 'awful', 'hate', 'angry', 'upset', 'worried', 'sorry'];
+    const questionWords = ['what', 'how', 'why', 'when', 'where', 'who', '?'];
+    
+    const isPositive = positiveWords.some(word => message.toLowerCase().includes(word));
+    const isNegative = negativeWords.some(word => message.toLowerCase().includes(word));
+    const isQuestion = questionWords.some(word => message.toLowerCase().includes(word));
+    
+    if (isPositive) {
+        // Happy expression - smile
+        avatarMouth.className = 'mouth-smile';
+        setTimeout(() => {
+            avatarMouth.className = 'mouth-closed';
+        }, 2000);
+    } else if (isNegative) {
+        // Concerned expression - slight frown
+        avatarMouth.className = 'mouth-frown';
+        setTimeout(() => {
+            avatarMouth.className = 'mouth-closed';
+        }, 2000);
+    } else if (isQuestion) {
+        // Questioning expression - neutral with slight opening
+        avatarMouth.className = 'mouth-neutral';
+        setTimeout(() => {
+            avatarMouth.className = 'mouth-closed';
+        }, 1500);
+    }
 }

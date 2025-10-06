@@ -34,66 +34,243 @@
             display: none;
         }
         
-        /* Avatar Styles */
-        .avatar-container {
+        /* Human-like Avatar Styles */
+        #avatar-container {
             position: relative;
-            width: 180px;
-            height: 220px;
+            width: 250px;
+            height: 300px;
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
-            transition: all 0.3s ease-in-out;
         }
-        
-        .avatar-head {
-            width: 128px;
-            height: 128px;
-            background: linear-gradient(to bottom, #d1d5db, #9ca3af);
-            border-radius: 16px;
-            position: relative;
-            border: 3px solid #6b7280;
-            transition: all 0.3s ease-in-out;
-        }
-        
+
         .avatar-body {
-            width: 144px;
-            height: 80px;
-            background: linear-gradient(to bottom, #9ca3af, #6b7280);
-            border-radius: 16px 16px 10px 10px;
-            margin-top: -8px;
-            border: 3px solid #4b5563;
+            width: 200px;
+            height: 120px;
+            background: #6e8efb;
+            position: absolute;
+            bottom: 0;
+            border-radius: 100px 100px 20px 20px;
         }
-        
+
+        .avatar-neck {
+            width: 50px;
+            height: 40px;
+            background: #ffdeb4;
+            position: absolute;
+            bottom: 100px;
+            z-index: 1;
+        }
+
+        .avatar-head {
+            width: 160px;
+            height: 200px;
+            background: #ffdeb4;
+            border-radius: 50% / 50%;
+            position: relative;
+            z-index: 2;
+            overflow: hidden;
+            box-shadow: inset 0 -10px 15px rgba(0, 0, 0, 0.1);
+            animation: head-sway 8s ease-in-out infinite alternate;
+        }
+
+        .avatar-hair {
+            width: 180px;
+            height: 100px;
+            background: #3d2314;
+            position: absolute;
+            top: -20px;
+            left: -10px;
+            border-radius: 80px / 60px;
+        }
+
         .avatar-eye {
             position: absolute;
-            top: 32px;
-            width: 24px;
-            height: 24px;
+            top: 90px;
+            width: 30px;
+            height: 30px;
+            background: white;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.15s ease-in-out;
-            background-color: #f3f4f6;
+            animation: blink 4s infinite ease-in-out 1s;
         }
-        
+
         .avatar-eye .pupil {
-            width: 8px;
-            height: 8px;
-            background-color: #111827;
+            width: 15px;
+            height: 15px;
+            background: #588157;
             border-radius: 50%;
+            position: relative;
         }
-        
-        .eye-left {
-            left: 24px;
+
+        .avatar-eye .pupil::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 5px;
+            height: 5px;
+            background: white;
+            border-radius: 50%;
+            opacity: 0.8;
         }
-        
-        .eye-right {
-            right: 24px;
+
+        #eye-left {
+            left: 30px;
         }
-        
-        .avatar-status-label {
+
+        #eye-right {
+            right: 30px;
+        }
+
+        #avatar-mouth {
+            position: absolute;
+            bottom: 35px;
+            left: 50%;
+            width: 50px;
+            height: 25px;
+            transform: translateX(-50%);
+            transition: all 0.2s ease-out;
+        }
+
+        .lip,
+        .inner-mouth {
+            position: absolute;
+            transition: all 0.1s ease-out;
+        }
+
+        .lip {
+            width: 100%;
+            height: 5px;
+            background: #c18c5d;
+            border-radius: 5px;
+        }
+
+        .lip.top {
+            top: 5px;
+        }
+
+        .lip.bottom {
+            bottom: 5px;
+        }
+
+        .inner-mouth {
+            top: 10px;
+            left: 10%;
+            width: 80%;
+            height: 0px;
+            background: #5c2c2c;
+        }
+
+        /* Mouth states for animation */
+        .mouth-closed .lip.top {
+            top: 8px;
+        }
+
+        .mouth-closed .lip.bottom {
+            bottom: 8px;
+        }
+
+        .mouth-closed .inner-mouth {
+            height: 0;
+        }
+
+        .mouth-neutral .lip.top {
+            top: 6px;
+        }
+
+        .mouth-neutral .lip.bottom {
+            bottom: 6px;
+        }
+
+        .mouth-neutral .inner-mouth {
+            height: 4px;
+            border-radius: 2px;
+        }
+
+        .mouth-open-o .lip.top {
+            top: 0px;
+            border-radius: 25px 25px 0 0;
+        }
+
+        .mouth-open-o .lip.bottom {
+            bottom: 0px;
+            border-radius: 0 0 25px 25px;
+        }
+
+        .mouth-open-o .inner-mouth {
+            height: 15px;
+            border-radius: 5px;
+        }
+
+        .mouth-wide-e .lip.top {
+            top: 2px;
+            transform: scaleX(1.1);
+        }
+
+        .mouth-wide-e .lip.bottom {
+            bottom: 2px;
+            transform: scaleX(1.1);
+        }
+
+        .mouth-wide-e .inner-mouth {
+            height: 10px;
+            width: 100%;
+            left: 0;
+            border-radius: 2px;
+        }
+
+        /* Additional mouth shapes for better lip sync */
+        .mouth-smile .lip.top {
+            top: 3px;
+            transform: scaleX(1.2);
+            border-radius: 25px 25px 0 0;
+        }
+
+        .mouth-smile .lip.bottom {
+            bottom: 3px;
+            transform: scaleX(1.2);
+            border-radius: 0 0 25px 25px;
+        }
+
+        .mouth-smile .inner-mouth {
+            height: 8px;
+            border-radius: 2px;
+        }
+
+        .mouth-frown .lip.top {
+            top: 8px;
+            transform: scaleX(1.1);
+        }
+
+        .mouth-frown .lip.bottom {
+            bottom: 2px;
+            transform: scaleX(1.1);
+        }
+
+        .mouth-frown .inner-mouth {
+            height: 6px;
+            border-radius: 2px;
+        }
+
+        .mouth-narrow .lip.top {
+            top: 7px;
+            transform: scaleX(0.8);
+        }
+
+        .mouth-narrow .lip.bottom {
+            bottom: 7px;
+            transform: scaleX(0.8);
+        }
+
+        .mouth-narrow .inner-mouth {
+            height: 2px;
+            border-radius: 1px;
+        }
+
+        #avatar-status-label {
             margin-top: 15px;
             padding: 4px 12px;
             border-radius: 99px;
@@ -156,6 +333,11 @@
         @keyframes blink {
             0%, 95%, 100% { transform: scaleY(1); }
             97% { transform: scaleY(0.1); }
+        }
+        
+        @keyframes head-sway {
+            0% { transform: translateX(-3px) rotate(-1deg); }
+            100% { transform: translateX(3px) rotate(1deg); }
         }
         
         @keyframes pulse-blue {
